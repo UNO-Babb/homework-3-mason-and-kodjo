@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head><title>Fallout Shelter Game</title></head>
+<body>
+    <h1>Day {{ game.shelter.days_survived }}</h1>
+    <h2>Shelter Supplies</h2>
+    <ul>
+        {% for item, qty in game.shelter.supplies.items() %}
+            <li>{{ item }}: {{ qty }}</li>
+        {% endfor %}
+    </ul>
+
+    <img src="{{ url_for('static', filename='images/characters.png') }}" alt="Character Model">
+    <img src="{{ url_for('static', filename='images/background.jpg') }}" alt="Character Model">
+    <img src="{{ url_for('static', filename='images/character_{{ player.health }}.png') }}" alt="Character Model">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <div id="3d-container" style="width: 100%; height: 400px;"></div>
+<script>
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    var renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById("3d-container").appendChild(renderer.domElement);
+
+    var geometry = new THREE.BoxGeometry();
+    var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    var cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
+
+    camera.position.z = 5;
+
+    var animate = function () {
+        requestAnimationFrame(animate);
+
+        cube.rotation.x += 0.01;
+        cube.rotation.y += 0.01;
+
+        renderer.render(scene, camera);
+    };
+
+    animate();
+</script>
+
+
+    <h2>Players</h2>
+    <ul>
+    {% for player in game.players %}
+        <li>
+            {{ player.name }} ({{ player.ability }}) - Health: {{ player.health }} | Mental: {{ player.mental_state }} | Status: {{ player.status }}
+            <a href="/action/{{ player.name }}/scavenge">Scavenge</a>
+            <a href="/action/{{ player.name }}/hatch">Open Hatch</a>
+        </li>
+    {% endfor %}
+    </ul>
+
+    <h3>Events Log</h3>
+    <ul>
+    {% for event in game.shelter.event_log %}
+        <li>{{ event }}</li>
+    {% endfor %}
+    </ul>
+
+    <form action="/next_day">
+        <button type="submit">End Day</button>
+    </form>
+</body>
+</html>
+
+
+
